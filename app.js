@@ -1,30 +1,28 @@
 const app = require("express")();
-const multer = require("multer");
-const xlsx = require("xlsx");
-const path = require("path");
+const mongoose = require("mongoose");
+const morgan = require("morgan");
+const dotenv = require("dotenv")
 
-const storage = multer.diskStorage({
-   destination: (req, file, cb) => {
-      cb(null, 'uploads/');
-   },
+dotenv.config();
 
-   filename: (req, file, cb) => {
-      cb(null, `${Date.now()}- ${file.originalname}`);
-   },
+app.use(morgan("tiny"));
+
+mongoose.connect(process.env.MONGO_URI, {
+   useNewUrlParser: true,
+   useUnifiedTopology: true
+})
+   .then(() => console.log("mongoDB conectado"))
+   .catch(err => console.log(err))
+
+//rotas
+const uploadRoute = require("./routes/upload.route")
+
+app.use("/upload", uploadRoute)
+
+//error handler 
+app.use((req, res, next, err) => {
+   res.json(err.toString())
 })
 
-const fileFilter = function (req, file, cb) {
-   if (file.mimetype !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-      return cb(null, false)
-   else
-      return cb(null, true)
-}
-
-const upload = multer({ fileFilter, storage })
-
-app.post("/upload", upload.single("table"), (req, res) => {
-   let workbook = xlsx.readFile(path.join(__dirname, req.file.path));
-   res.json(workbook);
-})
-
-app.listen(3000, () => console.log("servidor ligado"))
+const PORT = process.env.PORT || 3000
+app.listen(PORT, () => console.log("servidor ligado na porta", PORT))
