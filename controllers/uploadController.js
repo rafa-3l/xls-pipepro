@@ -3,9 +3,8 @@ const path = require("path");
 const fs = require("fs");
 const tableSchema = require("../models/xlsTable");
 
-
-module.exports = {
-   upload: (req, res, next) => {
+class uploadController {
+   static upload(req, res, next) {
       try {
          const fileDest = path.join(__dirname, '../', req.file.path);
          const workbook = xlsx.readFile(fileDest);
@@ -18,3 +17,6 @@ module.exports = {
       }
    }
 }
+
+
+module.exports = uploadController

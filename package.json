@@ -4,13 +4,16 @@
   "main": "app.js",
   "repository": "https://github.com/arthur-teixeira/xls-pipepro.git",
   "author": "arthur <arthurcarvalho24@gmail.com>",
-  "license": "MIT License",
+  "license": "MIT",
   "private": false,
   "scripts": {
     "start": "node app.js",
     "start-dev": "nodemon app.js"
   },
   "dependencies": {
+    "bcrypt": "^3.0.6",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "mongoose": "^5.7.7",
     "multer": "^1.4.2",
