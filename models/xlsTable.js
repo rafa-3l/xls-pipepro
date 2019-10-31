@@ -4,15 +4,13 @@ const Schema = mongoose.Schema
 
 const xlsTableSchema = new Schema({
    user: {
-      type: String,
-      required: false,
-      default: "arthur"
+      type: Schema.Types.ObjectId,
+      required: true
    },
    table: {
       required: true,
       type: Object
    }
-
 })
 
 module.exports = mongoose.model("tabela", xlsTableSchema)

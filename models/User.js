@@ -35,6 +35,15 @@ UserSchema.pre('save', function (next) {
    } else next();
 });
 
+UserSchema.methods.checkPassword = function (password, cb) {
+   brcypt.compare(password, this.password, (err, same) => {
+      if (err)
+         cb(err);
+      else
+         cb(err, same);
+   })
+}
+
 
 
 module.exports = mongoose.model("user", UserSchema);

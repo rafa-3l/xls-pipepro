@@ -1,21 +1,43 @@
 const User = require("../models/User");
-const assert = require("assert")
-
+const jwt = require("jsonwebtoken");
+const errorHandler = require("../helpers/errorHandler").handler;
 class AuthController {
-   static register(req, res, next) {
+   static async register(req, res, next) {
+      const { name, email, password, confirmPassword } = req.body;
       try {
-         const { name, email, password, confirmPassword } = req.body
-         if (password !== confirmPassword)
-            throw new Error("As senhas não correspondem.");
+         const oldUser = await User.findOne({ email });
+         if (password !== confirmPassword) return errorHandler("As senhas não correspondem.", 401);
+         if (oldUser) return errorHandler("um usuário com este email já existe.", 401);
          const user = new User({ name, email, password });
          user.save()
-            .catch(err => {
-               throw err
-            })
-
+            .catch(err => { throw err })
+         res.sendStatus(200);
       } catch (error) {
          next(error)
       }
+   }
+
+   static async authenticate(req, res, next) {
+      const { email, password } = req.body;
+      const wrongPassword = () => errorHandler("Email e/ou senha incorretos", 401);
+      try {
+         const user = await User.findOne({ email });
+         if (!user) return wrongPassword;
+         user.checkPassword(password, (err, same) => {
+            if (err) throw err;
+            if (!same) return wrongPassword;
+            const token = jwt.sign({ email }, process.env.SECRET, {
+               expiresIn: '1h'
+            });
+            res.cookie('token', token, { httpOnly: true }).sendStatus(200);
+         })
+      } catch (error) {
+         next(error);
+      }
+   }
+
+   static checkToken(req, res, next) {
+      res.sendStatus(200);
    }
 }
 
